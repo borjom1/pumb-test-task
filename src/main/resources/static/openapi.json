@@ -1,0 +1,244 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Animals API",
+    "description": "This API exposes end-points for animals data persistence and fetch",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "paths": {
+    "/files/uploads": {
+      "post": {
+        "tags": [
+          "Animals"
+        ],
+        "summary": "Upload XML / CSV files with animals data collection",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Uploaded files were successfully processed"
+          },
+          "400": {
+            "description": "Unsupported file types, or files are not present",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "timestamp": 1713994480582,
+                  "status": 400,
+                  "error": "Bad Request",
+                  "path": "/files/uploads"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/animals": {
+      "get": {
+        "tags": [
+          "Animals"
+        ],
+        "summary": "Fetch animals with criteria",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/category"
+          },
+          {
+            "$ref": "#/components/parameters/sex"
+          },
+          {
+            "$ref": "#/components/parameters/sortBy"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Filtered animals according to specified criteria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnimalDto"
+                  },
+                  "example": [
+                    {
+                      "name": "Simba",
+                      "type": "dog",
+                      "sex": "male",
+                      "weight": 14.0,
+                      "category": 3,
+                      "cost": 57.0
+                    },
+                    {
+                      "name": "Bailey",
+                      "type": "dog",
+                      "sex": "male",
+                      "weight": 42.0,
+                      "category": 3,
+                      "cost": 46.0
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid criteria options",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "timestamp": 1713996029092,
+                  "status": 400,
+                  "error": "Bad Request",
+                  "path": "/api/v1/animals"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "nullable": false
+          },
+          "status": {
+            "type": "integer",
+            "nullable": false
+          },
+          "error": {
+            "type": "string",
+            "nullable": false
+          },
+          "timestamp": {
+            "type": "number",
+            "nullable": false
+          }
+        }
+      },
+      "SortAnimal": {
+        "type": "string",
+        "enum": [
+          "name",
+          "type",
+          "sex",
+          "weight",
+          "category",
+          "cost"
+        ]
+      },
+      "AnimalType": {
+        "type": "string",
+        "enum": ["dog", "cat"]
+      },
+      "Sex": {
+        "type": "string",
+        "enum": ["male", "female"]
+      },
+      "Category": {
+        "type": "integer",
+        "nullable": true,
+        "minimum": 1,
+        "maximum": 4
+      },
+      "AnimalDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": false
+          },
+          "type": {
+            "$ref": "#/components/schemas/AnimalType"
+          },
+          "sex": {
+            "$ref": "#/components/schemas/Sex"
+          },
+          "weight": {
+            "type": "number",
+            "nullable": false,
+            "minimum": 0
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "cost": {
+            "type": "number",
+            "nullable": false,
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "parameters": {
+      "type": {
+        "in": "query",
+        "name": "type",
+        "description": "Type of the animal",
+        "schema": {
+          "$ref": "#/components/schemas/AnimalType"
+        }
+      },
+      "sex": {
+        "in": "query",
+        "name": "sex",
+        "description": "Sex of the animal",
+        "schema": {
+          "$ref": "#/components/schemas/Sex"
+        }
+      },
+      "category": {
+        "in": "query",
+        "name": "category",
+        "description": "Price category of the animal",
+        "schema": {
+          "$ref": "#/components/schemas/Category"
+        }
+      },
+      "sortBy": {
+        "in": "query",
+        "name": "sortBy",
+        "description": "Sort items by animal's field",
+        "schema": {
+          "$ref": "#/components/schemas/SortAnimal"
+        }
+      }
+    }
+  }
+}
